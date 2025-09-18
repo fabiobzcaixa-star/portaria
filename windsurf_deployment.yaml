@@ -1,0 +1,6 @@
+# Portaria Express Smart Configuration
+# Configuration for deployment services
+framework: vite
+build_command: npm run build
+output_directory: dist
+node_version: 18

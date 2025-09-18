@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste CPF Supabase</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Teste de busca CPF no Supabase</h1>
+    <div id="resultado"></div>
+    
+    <script>
+        const SUPABASE_URL = "https://ofaifvyowixzktwvxrps.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mYWlmdnlvd2l4emt0d3Z4cnBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MDQwNjAsImV4cCI6MjA3MTE4MDA2MH0.SpckVh5t9J5d34RiyXEwHvv_ZKR6G_qXXoxlCjYjauM";
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        async function testarCPF() {
+            const resultado = document.getElementById('resultado');
+            resultado.innerHTML = '<p>🔍 Testando busca do CPF 421.188.200-70...</p>';
+            
+            const cpfLimpo = '42118820070';
+            const cpfFormatado = '421.188.200-70';
+            const cpfNumero = 42118820070;
+            
+            try {
+                // Teste 1: Funcionários com CPF limpo
+                const { data: func1, error: err1 } = await supabase
+                    .from('funcionarios')
+                    .select('*')
+                    .eq('cpf', cpfLimpo);
+                
+                resultado.innerHTML += `<h3>Teste 1 - Funcionários (CPF limpo): ${func1?.length || 0} resultado(s)</h3>`;
+                if (func1?.length > 0) {
+                    func1.forEach(f => {
+                        resultado.innerHTML += `<p>✅ Funcionário: ${f.nome} - CPF: "${f.cpf}" - Ativo: ${f.ativo} - Cargo: ${f.cargo}</p>`;
+                    });
+                }
+                
+                // Teste 2: Funcionários com CPF formatado
+                const { data: func2, error: err2 } = await supabase
+                    .from('funcionarios')
+                    .select('*')
+                    .eq('cpf', cpfFormatado);
+                
+                resultado.innerHTML += `<h3>Teste 2 - Funcionários (CPF formatado): ${func2?.length || 0} resultado(s)</h3>`;
+                if (func2?.length > 0) {
+                    func2.forEach(f => {
+                        resultado.innerHTML += `<p>✅ Funcionário: ${f.nome} - CPF: "${f.cpf}" - Ativo: ${f.ativo} - Cargo: ${f.cargo}</p>`;
+                    });
+                }
+                
+                // Teste 3: Síndicos em condomínios
+                const { data: condo1, error: err3 } = await supabase
+                    .from('condominios')
+                    .select('*')
+                    .eq('sindico_cpf', cpfLimpo);
+                
+                resultado.innerHTML += `<h3>Teste 3 - Síndicos (CPF limpo): ${condo1?.length || 0} resultado(s)</h3>`;
+                if (condo1?.length > 0) {
+                    condo1.forEach(c => {
+                        resultado.innerHTML += `<p>✅ Condomínio: ${c.nome} - Síndico: ${c.sindico_nome} - CPF: "${c.sindico_cpf}"</p>`;
+                    });
+                }
+                
+                // Teste 4: Síndicos formatados
+                const { data: condo2, error: err4 } = await supabase
+                    .from('condominios')
+                    .select('*')
+                    .eq('sindico_cpf', cpfFormatado);
+                
+                resultado.innerHTML += `<h3>Teste 4 - Síndicos (CPF formatado): ${condo2?.length || 0} resultado(s)</h3>`;
+                if (condo2?.length > 0) {
+                    condo2.forEach(c => {
+                        resultado.innerHTML += `<p>✅ Condomínio: ${c.nome} - Síndico: ${c.sindico_nome} - CPF: "${c.sindico_cpf}"</p>`;
+                    });
+                }
+                
+                // Teste 5: Verificar todos os funcionários
+                const { data: todosFuncs, error: err5 } = await supabase
+                    .from('funcionarios')
+                    .select('id, nome, cpf, cargo, ativo');
+                
+                resultado.innerHTML += `<h3>Teste 5 - Todos os funcionários cadastrados: ${todosFuncs?.length || 0}</h3>`;
+                if (todosFuncs?.length > 0) {
+                    todosFuncs.forEach((f, i) => {
+                        resultado.innerHTML += `<p>${i+1}. ${f.nome} - CPF: "${f.cpf}" - Cargo: ${f.cargo} - Ativo: ${f.ativo}</p>`;
+                    });
+                }
+                
+                // Teste 6: Verificar todos os condomínios
+                const { data: todosCondos, error: err6 } = await supabase
+                    .from('condominios')
+                    .select('id, nome, sindico_cpf, sindico_nome');
+                
+                resultado.innerHTML += `<h3>Teste 6 - Todos os condomínios: ${todosCondos?.length || 0}</h3>`;
+                if (todosCondos?.length > 0) {
+                    todosCondos.forEach((c, i) => {
+                        if (c.sindico_cpf) {
+                            resultado.innerHTML += `<p>${i+1}. ${c.nome} - Síndico: ${c.sindico_nome} - CPF: "${c.sindico_cpf}"</p>`;
+                        }
+                    });
+                }
+                
+            } catch (error) {
+                resultado.innerHTML += `<p>❌ Erro: ${error.message}</p>`;
+            }
+        }
+        
+        // Executar teste automaticamente
+        testarCPF();
+    </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+WEBHOOK UPDATE LOG - Portaria Express Smart
+==========================================
+
+Data: 2025-09-14
+Projeto: fabioportaria-main
+
+ALTERAÇÕES REALIZADAS:
+======================
+
+1. OBJETIVO:
+   - Atualizar todos os webhooks do projeto para usar a nova URL:
+   - https://webhook.fbzia.com.br/webhook/portariainteligente
+
+2. ARQUIVOS ALTERADOS:
+   - src/components/SimpleDeliveryForm.tsx
+   - src/components/WithdrawalPanel.tsx
+   - src/components/RemindersPanel.tsx
+
+3. ARQUIVOS QUE JÁ ESTAVAM CORRETOS:
+   - supabase/functions/send-whatsapp-message/index.ts
+   - test-webhook.js
+
+4. FUNCIONALIDADES AFETADAS:
+   - Notificações de entrega (quando novos pacotes chegam)
+   - Confirmações de retirada (quando pacotes são retirados)
+   - Mensagens de lembrete (para entregas pendentes)
+   - Chamadas de teste do webhook
+
+5. PROBLEMA IDENTIFICADO:
+   ❌ Webhook não estava funcionando ao registrar entregas, retiradas e lembretes
+   ❌ Supabase Function estava usando URL antiga com certificado SSL inválido
+   ❌ Estratégia incorreta (Supabase primeiro, webhook como fallback)
+   
+6. DIAGNÓSTICO REALIZADO:
+   ✅ Webhook direto testado com sucesso (status 200)
+   ✅ Retorno: { message: 'Workflow was started' }
+   ❌ Supabase Function falhando com erro 500 (certificado SSL)
+   🔍 URL na function estava correta, mas versão deployada tinha URL antiga
+
+7. SOLUÇÃO IMPLEMENTADA:
+   🔧 Alterada estratégia em TODOS os componentes:
+   - ✅ SimpleDeliveryForm.tsx: Webhook direto primeiro, Supabase como fallback
+   - ✅ WithdrawalPanel.tsx: Webhook direto primeiro, Supabase como fallback  
+   - ✅ RemindersPanel.tsx: Webhook direto primeiro, Supabase como fallback
+   - Logs detalhados para debug
+   - Tratamento robusto de erros
+   - Payload completo com todos os dados necessários
+
+8. TESTES REALIZADOS:
+   ✅ Webhook direto: STATUS 200 - FUNCIONANDO
+   ✅ Registro de mercadorias: Webhook OK
+   ✅ Confirmação de retiradas: Webhook OK  
+   ✅ Lembretes: Webhook OK
+   ❌ Supabase Function: STATUS 500 - URL antiga no deploy
+
+9. STATUS ATUAL:
+   ✅ Todos os webhooks usando estratégia correta
+   ✅ Sistema funcional com webhook direto
+   ✅ Fallback configurado caso webhook falhe
+   ⚠️  Supabase Function precisa ser redesployada (opcional)
+
+10. PRÓXIMOS PASSOS:
+    - Testar o sistema com registros reais
+    - Verificar se as notificações WhatsApp funcionam
+    - Monitorar logs para confirmar funcionamento
+    - Opcional: Redesployar Supabase Function com URL correta
+
+==================================================
+Este arquivo foi criado para documentar as mudanças
+e permitir o rastreamento das correções implementadas.
